@@ -1,0 +1,10 @@
+*
+!Makefile
+!run.bat
+!debug.bat
+!boot
+!include
+!kernel
+!lib
+!.gitignore
+!bochsrc.bxrc
