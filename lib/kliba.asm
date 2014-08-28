@@ -97,7 +97,7 @@ disp_color_str:
 
 ;;; void out_byte(u16 port, u8 value);
 out_byte:   
-    mov  ebx, [esp + 4]         ; ebx = port
+    mov  edx, [esp + 4]         ; ebx = port
     mov  al, [esp + 8]          ; al = value
     out  dx, al
     nop
