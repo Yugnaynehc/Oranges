@@ -2,5 +2,9 @@
 *.exe
 *.o
 *.obj
+*.bin
+GPATH
+GTAGS
+GRTAGS
 cdimage
 VM

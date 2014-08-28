@@ -73,7 +73,7 @@ typedef struct s_gate
 
 
 /* interrupt vector */
-#define  INT_VECTOR_DIVIDE         0x0
+#define INT_VECTOR_DIVIDE          0x0
 #define INT_VECTOR_DEBUG           0x1
 #define INT_VECTOR_NMI             0x2
 #define INT_VECTOR_BREAKPOINT      0x3
