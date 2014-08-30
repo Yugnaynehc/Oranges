@@ -19,7 +19,7 @@
 
 PUBLIC int kernel_main()
 {
-    disp_str("kernel main begin:\n");
+    disp_str("----\"kernel main\" begins:----\n");
     TASK        *p_task         = task_table;
     PROCESS     *p_proc         = proc_table;
     u8          *p_task_stack   = task_stack + STACK_SIZE_TOTAL;
