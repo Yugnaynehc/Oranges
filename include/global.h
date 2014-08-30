@@ -6,10 +6,10 @@
 
 
 /* EXTERN is defined as extern except in global.c */
-#ifdef  GLOBAL_VARIABLES_HERE
-#undef  EXTERN
-#define EXTERN
-#endif
+//#ifdef  GLOBAL_VARIABLES_HERE
+//#undef  EXTERN
+//#define EXTERN
+//#endif
 
 EXTERN  int        disp_pos;
 EXTERN  u8         gdt_ptr[6];  /* 0~15:Limitation 16~47:base */
@@ -24,3 +24,4 @@ EXTERN  PROCESS    *p_proc_ready;
 
 EXTERN  PROCESS    proc_table[NR_TASKS];
 EXTERN  char       task_stack[STACK_SIZE_TOTAL];
+EXTERN  TASK       task_table[NR_TASKS]
