@@ -13,13 +13,13 @@ PUBLIC void	disp_color_str(char *info, int color);
 
 /* protect.c */
 PUBLIC void init_port();
-PUBLIC void init_8259();
+PUBLIC u32  seg2phys(u16 seg);
 
 /* klib.c */
 PUBLIC void delay(int time);
 
 /* kernel.asm */
- void restart();
+PUBLIC void restart();
 
 /* main.c */
-void TestA();
+PUBLIC void TestA();
