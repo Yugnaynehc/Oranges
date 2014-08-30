@@ -41,7 +41,7 @@ LABEL_START:
     mov  ax, 0600h              ; AH = 6, AL = 0h
     mov  bx, 0700h              ; BL = 07h, black background and white foreground
     mov  cx, 0
-    mov  dx, 0184h
+    mov  dx, 0184Fh
     int  10h
 
     mov  dh, 0
