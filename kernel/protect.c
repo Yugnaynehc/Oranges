@@ -58,8 +58,8 @@ void hwint15();
 
 
 
-/* init interrupt ports */
-PUBLIC void init_port()
+/* init protect mode */
+PUBLIC void init_prot()
 {
     init_8259A();
 

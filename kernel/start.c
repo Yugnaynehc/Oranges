@@ -39,7 +39,7 @@ PUBLIC void cstart()
 	*p_idt_limit     = IDT_SIZE * sizeof(GATE) - 1;
 	*p_idt_base      = (u32)&idt;
 
-    init_port();
+    init_prot();
 
     disp_str("-----\"cstart\" ends-----\n");
 }
