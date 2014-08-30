@@ -23,7 +23,7 @@ ORANGESBOOT	= boot/boot.bin boot/loader.bin
 ORANGESKERNEL	= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o \
 			kernel/i8259.o kernel/global.o kernel/protect.o \
-			lib/klib.o lib/kliba.o lib/string.o
+			kernel/clock.o lib/klib.o lib/kliba.o lib/string.o
 DASMOUTPUT	= kernel.bin.asm
 
 # All phony targets
@@ -51,7 +51,7 @@ disasm:
 buildimg:
 	dd if=boot/boot.bin of=boot.img bs=512 count=1 conv=notrunc
 	sudo mount -o loop boot.img /mnt/floppy/
-	sudo rm /mnt/floppy/*.*
+	#sudo rm /mnt/floppy/*.*
 	sudo cp -fv boot/loader.bin /mnt/floppy
 	sudo cp -fv kernel.bin /mnt/floppy
 	sudo umount /mnt/floppy
@@ -69,16 +69,16 @@ $(ORANGESKERNEL): $(OBJS)
 kernel/kernel.o: kernel/kernel.asm include/sconst.inc
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-kernel/start.o: kernel/start.c include/type.h include/const.h include/protect.h \
-		include/proto.h include/string.h include/proc.h include/global.h
+kernel/start.o: kernel/start.c include/type.h include/const.h include/proto.h \
+		include/protect.h include/string.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/main.o: kernel/main.c include/type.h include/const.h include/protect.h \
 		include/string.h include/proc.h include/proto.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/i8259.o: kernel/i8259.c include/type.h include/const.h include/protect.h \
-		include/proto.h
+kernel/i8259.o: kernel/i8259.c include/type.h include/const.h \
+		include/protect.h include/proto.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/global.o: kernel/global.c include/type.h include/const.h \
@@ -87,6 +87,10 @@ kernel/global.o: kernel/global.c include/type.h include/const.h \
 
 kernel/protect.o: kernel/protect.c include/type.h include/const.h \
 		include/protect.h include/proc.h include/proto.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/clock.o: kernel/clock.c include/type.h include/const.h \
+		include/protect.h include/proto.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o: lib/klib.c include/type.h include/const.h include/protect.h \

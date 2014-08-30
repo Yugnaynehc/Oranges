@@ -23,3 +23,8 @@ PUBLIC void restart();
 
 /* main.c */
 PUBLIC void TestA();
+PUBLIC void TestB();
+PUBLIC void TestC();
+
+/* clock.c */
+PUBLIC void clock_handler();

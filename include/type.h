@@ -14,6 +14,6 @@ typedef unsigned short     u16;
 typedef unsigned char      u8;
 
 typedef void (*int_handler)();
-typedef (*task_f) ();
+typedef void (*task_f)();
 
 #endif  /* _ORANGES_TYPE_H */

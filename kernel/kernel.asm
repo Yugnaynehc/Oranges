@@ -15,6 +15,7 @@ extern  exception_handler
 extern  spurious_irq
 extern  disp_str
 extern  delay
+extern  clock_handler
 
 ;;; import global variables
 extern  gdt_ptr
@@ -177,19 +178,13 @@ hwint00:                        ; Interrupt routine for irq 0 (the clock)
     mov  esp, StackTop          ; switch to kernel stack
 
     sti
-
-    push clock_int_msg
-    call disp_str
+    push 0
+    call clock_handler
     add  esp, 4
-
-    ;; push 1
-    ;; call delay
-    ;; add  esp, 4
-
     cli
 
     mov esp, [p_proc_ready]     ; leave kernel stack, back to process table
-
+    lldt [esp + P_LDT_SEL]
     lea eax, [esp + P_STACKTOP]
     mov dword [tss + TSS3_S_SP0], eax
 

@@ -10,6 +10,8 @@
 ;;; export functions
 global memcpy    
 global memset
+global strcpy
+
 
 
 
@@ -83,3 +85,29 @@ memset:
     pop  ebp
 
     ret
+
+
+; ------------------------------------------------------------------------
+; char* strcpy(char* p_dst, char* p_src);
+; ------------------------------------------------------------------------
+strcpy:
+	push ebp
+	mov  ebp, esp
+
+	mov  esi, [ebp + 12] ; Source
+	mov  edi, [ebp + 8]  ; Destination
+
+.1:
+	mov  al, [esi]               
+	inc  esi                     
+					
+	mov  byte [edi], al          
+	inc  edi                     
+
+	cmp  al, 0           ; Is thers a '\0'?
+	jnz .1               
+
+	mov  eax, [ebp + 8]  ; return value
+
+	pop  ebp
+	ret
