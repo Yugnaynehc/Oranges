@@ -7,8 +7,8 @@ romimage: file="C:\Program Files (x86)\Bochs-2.6.6/BIOS-bochs-latest"
 vgaromimage: file="C:\Program Files (x86)\Bochs-2.6.6/VGABIOS-lgpl-latest"
 boot: floppy
 floppy_bootsig_check: disabled=0
-floppya: type=1_44, 1_44="G:\Exercise\Oranges\boot.img", status=inserted, write_protected=0
-floppyb: type=1_44, 1_44="G:\Exercise\Oranges\pm.img", status=inserted, write_protected=0
+floppya: type=1_44, 1_44="G:\Exercise\Oranges\images\boot.img", status=inserted, write_protected=0
+floppyb: type=1_44, 1_44="G:\Exercise\Oranges\images\pm.img", status=inserted, write_protected=0
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 ata0-master: type=none
 ata0-slave: type=none
