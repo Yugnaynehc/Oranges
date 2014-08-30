@@ -13,6 +13,8 @@ extern  cstart
 extern  kernel_main
 extern  exception_handler
 extern  spurious_irq
+extern  disp_str
+extern  delay
 
 ;;; import global variables
 extern  gdt_ptr
@@ -20,8 +22,12 @@ extern  idt_ptr
 extern  p_proc_ready
 extern  tss
 extern  disp_pos
+extern  k_reenter
 
 bits 32
+
+[SECTION  .data]
+clock_int_msg   db      '^', 0
 
 [SECTION  .bss]
 StackSpace      resb    2 * 1024
@@ -149,7 +155,53 @@ csinit:
 
 ALIGN  16
 hwint00:                        ; Interrupt routine for irq 0 (the clock)
-    ;; hwint_master    0
+    sub  esp, 4
+    pushad                      ; all the push statemeets are using
+    push ds                     ; to save register to process table
+    push es
+    push fs
+    push gs
+    mov  dx, ss
+    mov  ds, dx
+    mov  es, dx
+
+    inc  byte [gs:0]            ; test interrupt
+
+    mov  al, EOI                ; reenable eoi
+    out  INT_M_CTL, al          ; write to master 8259
+
+    inc  dword [k_reenter]
+    cmp  dword [k_reenter], 0
+    jne  .re_enter
+    
+    mov  esp, StackTop          ; switch to kernel stack
+
+    sti
+
+    push clock_int_msg
+    call disp_str
+    add  esp, 4
+
+    ;; push 1
+    ;; call delay
+    ;; add  esp, 4
+
+    cli
+
+    mov esp, [p_proc_ready]     ; leave kernel stack, back to process table
+
+    lea eax, [esp + P_STACKTOP]
+    mov dword [tss + TSS3_S_SP0], eax
+
+.re_enter:                      ; if k_reenter isn't equal to 0, there are 
+    dec  dword [k_reenter]      ; many clock interrupts.
+    pop  gs                     ; reset registers which are saved in
+    pop  fs                     ; process table
+    pop  es
+    pop  ds
+    popad
+    add  esp, 4
+    
     iretd
 
 ALIGN  16

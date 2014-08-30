@@ -41,8 +41,8 @@ PUBLIC void init_8259A()
     /* Slave  8259, ICW4 */
     out_byte(INT_S_CTLMASK, 0x1);
 
-    /* Master 8259, OCW1, only use keyboard interrupt */
-    out_byte(INT_M_CTLMASK, 0xFD);
+    /* Master 8259, OCW1, only use clock interrupt */
+    out_byte(INT_M_CTLMASK, 0xFE);
 
     /* Slave  8259, OCW1, block all interruput */
     out_byte(INT_S_CTLMASK, 0xFF);

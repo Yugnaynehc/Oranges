@@ -75,6 +75,7 @@ kernel/start.o: kernel/start.c include/type.h include/const.h include/protect.h 
 
 kernel/main.o: kernel/main.c include/type.h include/const.h include/protect.h \
 		include/string.h include/proc.h include/proto.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/i8259.o: kernel/i8259.c include/type.h include/const.h include/protect.h \
 		include/proto.h

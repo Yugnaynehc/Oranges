@@ -41,13 +41,11 @@ typedef struct s_proc {
     char        p_name[16];
 } PROCESS;
 
-/*
 typedef struct s_task {
     task_f    initial_eip;
     int       stacksize;
     char      name[32];
 } TASK;
-*/
 
 /* number of tasks */
 #define NR_TASKS    3

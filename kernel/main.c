@@ -39,6 +39,8 @@ PUBLIC int kernel_main()
     p_proc->regs.esp    = (u32)task_stack + STACK_SIZE_TOTAL;
     p_proc->regs.eflags = 0x1202; /* IF=1, IOPL=1, bit 2 is always 1 */
 
+    k_reenter = -1;
+    
     p_proc_ready        = proc_table;
     restart();
 
@@ -50,6 +52,17 @@ void TestA()
     int i = 0;
     while (1) {
         disp_str("A");
+        disp_int(i++);
+        disp_str(".");
+        delay(1);
+    }
+}
+
+void TestB()
+{
+    int i = 0x1000;
+    while (1) {
+        disp_str("B");
         disp_int(i++);
         disp_str(".");
         delay(1);
