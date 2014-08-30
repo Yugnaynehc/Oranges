@@ -50,7 +50,7 @@ disasm:
 # We assume that 'boot.img' exists in current folder
 buildimg:
 	dd if=boot/boot.bin of=boot.img bs=512 count=1 conv=notrunc
-	sudo mount -o loop boot.img /mnt/floppy/
+	sudo mount -o loop images/boot.img /mnt/floppy/
 	sudo rm /mnt/floppy/*.*
 	sudo cp -fv boot/loader.bin /mnt/floppy
 	sudo cp -fv kernel.bin /mnt/floppy
@@ -62,9 +62,6 @@ boot/boot.bin: boot/boot.asm boot/include/load.inc boot/include/fat12hdr.inc
 boot/loader.bin: boot/loader.asm boot/include/load.inc \
 		 boot/include/fat12hdr.inc boot/include/pm.inc
 	$(ASM) $(ASMBFLAGS) -o $@ $<
-
-$(ORANGESKERNEL): $(OBJS)
-	$(LD) $(LDFLAGS) -o $(ORANGESKERNEL) $(OBJS)
 
 kernel/kernel.o: kernel/kernel.asm include/sconst.inc
 	$(ASM) $(ASMKFLAGS) -o $@ $<
@@ -103,3 +100,5 @@ lib/kliba.o: lib/kliba.asm
 lib/string.o: lib/string.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
+$(ORANGESKERNEL): $(OBJS)
+	$(LD) $(LDFLAGS) -o $(ORANGESKERNEL) $(OBJS)
