@@ -11,4 +11,5 @@
 #include "const.h"
 #include "protect.h"
 #include "proto.h"
+#include "proc.h"
 #include "global.h"

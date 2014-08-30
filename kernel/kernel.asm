@@ -6,18 +6,22 @@
 
 
 
-SELECTOR_KERNEL_CS      equ     8
+%include "sconst.inc"
 
 ;;; import functions
 extern  cstart
+extern  kernel_main
 extern  exception_handler
 extern  spurious_irq
 
 ;;; import global variables
 extern  gdt_ptr
 extern  idt_ptr
+extern  p_proc_ready
+extern  tss
 extern  disp_pos
 
+bits 32
 
 [SECTION  .bss]
 StackSpace      resb    2 * 1024
@@ -26,6 +30,8 @@ StackTop:
 [SECTION  .text]
 ;;; export symbols
 global  _start
+
+global  restart
 
 global  divide_error
 global  single_step_exception
@@ -59,6 +65,7 @@ global  hwint12
 global  hwint13
 global  hwint14
 global  hwint15
+
 
 _start: 
 	; 此时内存看上去是这样的（更详细的内存情况在 LOADER.ASM 中有说明）：
@@ -115,8 +122,19 @@ _start:
 
     jmp  SELECTOR_KERNEL_CS:csinit
 csinit:
-    sti
-    hlt
+
+
+
+
+
+    xor  eax, eax
+    mov  ax, SELECTOR_TSS
+    ltr  ax
+
+    ;; sti
+    jmp  kernel_main
+
+    ;; hlt
 
 
 
@@ -131,7 +149,8 @@ csinit:
 
 ALIGN  16
 hwint00:                        ; Interrupt routine for irq 0 (the clock)
-    hwint_master    0
+    ;; hwint_master    0
+    iretd
 
 ALIGN  16
 hwint01:                        ; Interrupt routine for irq 1 (keyboard)
@@ -269,3 +288,21 @@ exception:
     add  esp, 4 * 2             ; make stack top pointer point to eip
     hlt                         ; there are eip, cs, eflages in stack from top to bottom
 
+
+
+
+restart:    
+    mov  esp, [p_proc_ready]
+    lldt [esp + P_LDT_SEL]
+    lea  eax, [esp + P_STACKTOP]
+    mov  dword [tss + TSS3_S_SP0], eax
+
+    pop  gs
+    pop  fs
+    pop  es
+    pop  ds
+    popad
+
+    add esp, 4
+
+    iretd

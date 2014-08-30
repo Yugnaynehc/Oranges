@@ -8,12 +8,16 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
-#include "global.h"
 #include "proto.h"
+#include "proc.h"
+#include "global.h"
+
 
 /* function declares */
 PRIVATE void init_idt_desc(u8 vector, u8 desc_type,
                            int_handler handler, u8 privilege);
+PRIVATE void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attr);
+
 
 /* interrupt handling functions */
 void divide_error();
@@ -48,6 +52,9 @@ void hwint12();
 void hwint13();
 void hwint14();
 void hwint15();
+
+
+
 
 
 
@@ -152,6 +159,24 @@ PUBLIC void init_port()
 
     init_idt_desc(INT_VECTOR_IRQ8 + 7,   DA_386IGate,
                   hwint15,               PRIVILEGE_KRNL);
+
+
+
+
+    /* init the TSS descriptor in GDT */
+    memset(&tss, 0, sizeof(TSS));
+    tss.ss0     = SELECTOR_KERNEL_DS;
+    init_descriptor(&gdt[INDEX_TSS],
+                    vir2phys(seg2phys(SELECTOR_KERNEL_DS), &tss),
+                    sizeof(TSS) - 1,
+                    DA_386TSS);
+    tss.iobase  = sizeof(TSS);  /* no I/O base map */
+    
+    /* init the LDT descriptor in GDT */
+    init_descriptor(&gdt[INDEX_LDT_FIRST],
+                    vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[0].ldts),
+                    LDT_SIZE * sizeof(DESCRIPTOR) - 1,
+                    DA_LDT);
 }
 
 
@@ -171,6 +196,25 @@ PRIVATE void init_idt_desc(u8 vector, u8 desc_type,
     p_gate->offset_high = (base >> 16) & 0xFFFF;
 }
 
+
+/* get physics address according to segment inditifier */
+PUBLIC u32 seg2phys(u16 seg)
+{
+    DESCRIPTOR *p_dest = &gdt[seg >> 3];
+
+    return (p_dest->base_high<<24 | p_dest->base_mid<<16 | p_dest->base_low);
+}
+
+/* Init descriptor */
+PRIVATE void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attr)
+{
+    p_desc->limit_low           = limit & 0x0FFFF;
+    p_desc->base_low            = base & 0xFFFF;
+    p_desc->base_mid            = (base>>16) & 0x0FF;
+    p_desc->attr1               = attr & 0xFF;
+    p_desc->limit_high_attr2    = ((limit>>16) & 0x0F) | (attr>>8) &0xF0;
+    p_desc->base_high           = (base>>24) & 0x0FF;
+}
 
 
 
