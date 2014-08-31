@@ -25,3 +25,5 @@ EXTERN  PROCESS    *p_proc_ready;
 EXTERN  PROCESS    proc_table[NR_TASKS];
 EXTERN  char       task_stack[STACK_SIZE_TOTAL];
 EXTERN  TASK       task_table[NR_TASKS];
+
+EXTERN  irq_handler irq_table[NR_IRQ];

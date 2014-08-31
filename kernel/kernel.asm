@@ -16,6 +16,7 @@ extern  spurious_irq
 extern  disp_str
 extern  delay
 extern  clock_handler
+extern  irq_table
 
 ;;; import global variables
 extern  gdt_ptr
@@ -147,57 +148,27 @@ csinit:
 
 ;;; Interrupt and exception: the hardware interrupt
 %macro  hwint_master    1
-    push %1
-    call spurious_irq
-    add  esp, 4
-    hlt
+    call save
+    in   al, INT_M_CTLMASK
+    or   al, (1 << %1)
+    out  INT_M_CTLMASK, al      ; block current interrupt
+    mov  al, EOI                
+    out  INT_M_CTL, al          ; reset EOI
+    sti                         ; CPU will block all interrupt automatically,
+    push %1                     ; so use sti to reopen interrupt.
+    call [irq_table + 4 * %1]   ; Call interrupt routine
+    pop  ecx
+    cli
+    in   al, INT_M_CTLMASK
+    and  al, ~(1 << %1)
+    out  INT_M_CTLMASK, al      ; reopen current interrupt
+    ret
 %endmacro
 
 
 ALIGN  16
 hwint00:                        ; Interrupt routine for irq 0 (the clock)
-    sub  esp, 4
-    pushad                      ; all the push statemeets are using
-    push ds                     ; to save register to process table
-    push es
-    push fs
-    push gs
-    mov  dx, ss
-    mov  ds, dx
-    mov  es, dx
-
-    inc  byte [gs:0]            ; test interrupt
-
-    mov  al, EOI                ; reenable eoi
-    out  INT_M_CTL, al          ; write to master 8259
-
-    inc  dword [k_reenter]
-    cmp  dword [k_reenter], 0
-    jne  .re_enter
-    
-    mov  esp, StackTop          ; switch to kernel stack
-
-    sti
-    push 0
-    call clock_handler
-    add  esp, 4
-    cli
-
-    mov esp, [p_proc_ready]     ; leave kernel stack, back to process table
-    lldt [esp + P_LDT_SEL]
-    lea eax, [esp + P_STACKTOP]
-    mov dword [tss + TSS3_S_SP0], eax
-
-.re_enter:                      ; if k_reenter isn't equal to 0, there are 
-    dec  dword [k_reenter]      ; many clock interrupts.
-    pop  gs                     ; reset registers which are saved in
-    pop  fs                     ; process table
-    pop  es
-    pop  ds
-    popad
-    add  esp, 4
-    
-    iretd
+    hwint_master    0
 
 ALIGN  16
 hwint01:                        ; Interrupt routine for irq 1 (keyboard)
@@ -338,18 +309,43 @@ exception:
 
 
 
+save:   
+    pushad                      ; save registers
+    push ds
+    push es
+    push fs
+    push gs
+    mov  dx, ss
+    mov  ds, dx
+    mov  es, dx
+
+    mov  eax, esp               ; eax = the begin address of PCB
+
+    inc  dword [k_reenter]      ; k_reenter++
+    cmp  dword [k_reenter], 0   ; if k_reenter == 0
+    jne  .1
+    mov  esp, StackTop          ; switch to kernel stack
+    push restart
+    jmp  [eax + RETADR - P_STACKBASE]
+.1:
+    push restart_reenter
+    jmp  [eax + RETADR - P_STACKBASE]
+
+
+
+    
+
 restart:    
     mov  esp, [p_proc_ready]
     lldt [esp + P_LDT_SEL]
     lea  eax, [esp + P_STACKTOP]
     mov  dword [tss + TSS3_S_SP0], eax
-
+restart_reenter:    
+    dec  dword [k_reenter]
     pop  gs
     pop  fs
     pop  es
     pop  ds
     popad
-
     add esp, 4
-
     iretd

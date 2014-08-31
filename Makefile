@@ -94,7 +94,7 @@ lib/klib.o: lib/klib.c include/type.h include/const.h include/protect.h \
 		include/string.h include/proc.h include/proto.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-lib/kliba.o: lib/kliba.asm
+lib/kliba.o: lib/kliba.asm include/sconst.inc
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
 lib/string.o: lib/string.asm

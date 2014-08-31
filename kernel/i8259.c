@@ -10,6 +10,8 @@
 #include "const.h"
 #include "protect.h"
 #include "proto.h"
+#include "proc.h"
+#include "global.h"
 
 
 
@@ -41,11 +43,15 @@ PUBLIC void init_8259A()
     /* Slave  8259, ICW4 */
     out_byte(INT_S_CTLMASK, 0x1);
 
-    /* Master 8259, OCW1, only use clock interrupt */
-    out_byte(INT_M_CTLMASK, 0xFE);
+    /* Master 8259, OCW1, block all interrupt */
+    out_byte(INT_M_CTLMASK, 0xFF);
 
     /* Slave  8259, OCW1, block all interruput */
     out_byte(INT_S_CTLMASK, 0xFF);
+
+    int i;
+    for (i=0; i<NR_IRQ; ++i)
+        irq_table[i] = spurious_irq;
 }
 
 
@@ -54,4 +60,11 @@ PUBLIC void spurious_irq(int irq)
     disp_str("Spurious_irq: ");
     disp_int(irq);
     disp_str("\n");
+}
+
+
+PUBLIC void put_irq_handler(int irq, irq_handler handler)
+{
+    disable_irq(irq);
+    irq_table[irq] = handler;
 }

@@ -28,3 +28,7 @@ PUBLIC void TestC();
 
 /* clock.c */
 PUBLIC void clock_handler();
+
+/* i8259.c */
+PUBLIC void spurious_irq(int irq);
+PUBLIC void put_irq_handler(int irq, irq_handler handler);
