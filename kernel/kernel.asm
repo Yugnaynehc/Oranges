@@ -17,6 +17,7 @@ extern  disp_str
 extern  delay
 extern  clock_handler
 extern  irq_table
+extern  sys_call_table
 
 ;;; import global variables
 extern  gdt_ptr
@@ -41,6 +42,7 @@ global  _start
 
 global  restart
 
+global  sys_call
 global  divide_error
 global  single_step_exception
 global  nmi
@@ -137,7 +139,7 @@ csinit:
 
     xor  eax, eax
     mov  ax, SELECTOR_TSS
-    ltr  ax
+    ltr  ax                     ; load TSS
 
     ;; sti
     jmp  kernel_main
@@ -151,17 +153,17 @@ csinit:
     call save
     in   al, INT_M_CTLMASK
     or   al, (1 << %1)
-    out  INT_M_CTLMASK, al      ; block current interrupt
+    out  INT_M_CTLMASK, al      ; disable current interrupt
     mov  al, EOI                
     out  INT_M_CTL, al          ; reset EOI
     sti                         ; CPU will block all interrupt automatically,
     push %1                     ; so use sti to reopen interrupt.
     call [irq_table + 4 * %1]   ; Call interrupt routine
     pop  ecx
-    cli
-    in   al, INT_M_CTLMASK
+    cli                         ; Block all interrupt, make sure 
+    in   al, INT_M_CTLMASK      ; return routine will not be interrupted.
     and  al, ~(1 << %1)
-    out  INT_M_CTLMASK, al      ; reopen current interrupt
+    out  INT_M_CTLMASK, al      ; enable current interrupt
     ret
 %endmacro
 
@@ -307,6 +309,18 @@ exception:
     hlt                         ; there are eip, cs, eflages in stack from top to bottom
 
 
+sys_call: 
+    call save
+    
+    sti
+
+    call [sys_call_table + eax * 4]
+    mov  [esi + EAXREG - P_STACKBASE], eax ; esi = base address of PCB
+                                           ; eax = ticks
+
+    cli
+
+    ret
 
 
 save:   
@@ -319,17 +333,17 @@ save:
     mov  ds, dx
     mov  es, dx
 
-    mov  eax, esp               ; eax = the begin address of PCB
+    mov  esi, esp               ; esi = the begin address of PCB
 
     inc  dword [k_reenter]      ; k_reenter++
     cmp  dword [k_reenter], 0   ; if k_reenter == 0
     jne  .1
     mov  esp, StackTop          ; switch to kernel stack
     push restart
-    jmp  [eax + RETADR - P_STACKBASE]
+    jmp  [esi + RETADR - P_STACKBASE]
 .1:
     push restart_reenter
-    jmp  [eax + RETADR - P_STACKBASE]
+    jmp  [esi + RETADR - P_STACKBASE]
 
 
 
@@ -339,9 +353,9 @@ restart:
     mov  esp, [p_proc_ready]
     lldt [esp + P_LDT_SEL]
     lea  eax, [esp + P_STACKTOP]
-    mov  dword [tss + TSS3_S_SP0], eax
-restart_reenter:    
-    dec  dword [k_reenter]
+    mov  dword [tss + TSS3_S_SP0], eax ; Update TSS so that stack pointer 
+restart_reenter:                       ; will point to current process's
+    dec  dword [k_reenter]             ; PCB when enter ring0.
     pop  gs
     pop  fs
     pop  es

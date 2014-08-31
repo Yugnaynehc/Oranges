@@ -16,5 +16,6 @@ typedef unsigned char      u8;
 typedef void (*int_handler)();
 typedef void (*task_f)();
 typedef void (*irq_handler)(int irq);
+typedef void *system_call;      /* be able to point any kind of functions */
 
 #endif  /* _ORANGES_TYPE_H */
