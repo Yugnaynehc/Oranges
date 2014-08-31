@@ -67,6 +67,11 @@ PUBLIC int kernel_main()
 
     put_irq_handler(CLOCK_IRQ, clock_handler);
     enable_irq(CLOCK_IRQ);
+
+    /* init 8253 */
+    out_byte(TIMER_MODE, RATE_GERERATOR);
+    out_byte(TIMER0, (u8)(TIMER_FREQ/HZ));
+    out_byte(TIMER0, (u8)((TIMER_FREQ/HZ) >> 8));
     
     restart();
     
@@ -78,9 +83,9 @@ void TestA()
     //int i = 0;
     while (1) {
         disp_str("A");
-        disp_int(get_ticks());
+        //disp_int(get_ticks());
         disp_str(".");
-        delay(1);
+        milli_delay(1000);
     }
 }
 
@@ -89,9 +94,9 @@ void TestB()
     int i = 0x1000;
     while (1) {
         disp_str("B");
-        disp_int(i++);
+        //disp_int(i++);
         disp_str(".");
-        delay(1);
+        milli_delay(1500);
     }
 }
 
@@ -100,8 +105,8 @@ void TestC()
     int i = 0x2000;
     while (1) {
         disp_str("C");
-        disp_int(i++);
+        //disp_int(i++);
         disp_str(".");
-        delay(1);
+        milli_delay(2000);
     }
 }

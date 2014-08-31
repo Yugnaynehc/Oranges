@@ -29,6 +29,7 @@ PUBLIC void TestC();
 
 /* clock.c */
 PUBLIC void clock_handler();
+PUBLIC void milli_delay(int milli_sec);
 
 /* i8259.c */
 PUBLIC void spurious_irq(int irq);

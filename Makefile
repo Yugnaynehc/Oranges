@@ -50,9 +50,11 @@ disasm:
 
 # We assume that 'boot.img' exists in current folder
 buildimg:
+	#dd if=/dev/zero of=images/boot.img bs=512 count=68
+	#mkfs.msdos images/boot.img
 	dd if=boot/boot.bin of=images/boot.img bs=512 count=1 conv=notrunc
 	sudo mount -o loop images/boot.img /mnt/floppy
-	sudo rm -fv /mnt/floppy/*.*
+	#sudo rm -fv /mnt/floppy/*.*
 	sudo cp -fv boot/loader.bin /mnt/floppy
 	sudo cp -fv kernel.bin /mnt/floppy
 	sudo umount /mnt/floppy
