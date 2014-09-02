@@ -60,6 +60,10 @@ PUBLIC int kernel_main()
         p_task++;
         selector_ldt += 1 << 3;
     }
+
+    proc_table[0].priority = proc_table[0].ticks = 15;
+    proc_table[1].priority = proc_table[1].ticks = 5;
+    proc_table[2].priority = proc_table[2].ticks = 3;
     
     k_reenter       = 0;
     ticks           = 0;
@@ -83,9 +87,9 @@ void TestA()
     //int i = 0;
     while (1) {
         disp_str("A");
-        //disp_int(get_ticks());
+        disp_int(get_ticks());
         disp_str(".");
-        milli_delay(1000);
+        milli_delay(200);
     }
 }
 
@@ -94,9 +98,9 @@ void TestB()
     int i = 0x1000;
     while (1) {
         disp_str("B");
-        //disp_int(i++);
+        disp_int(get_ticks());
         disp_str(".");
-        milli_delay(1500);
+        milli_delay(200);
     }
 }
 
@@ -105,8 +109,8 @@ void TestC()
     int i = 0x2000;
     while (1) {
         disp_str("C");
-        //disp_int(i++);
+        disp_int(get_ticks());
         disp_str(".");
-        milli_delay(2000);
+        milli_delay(200);
     }
 }

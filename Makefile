@@ -22,13 +22,17 @@ LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386
 ORANGESBOOT	= boot/boot.bin boot/loader.bin
 ORANGESKERNEL	= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o \
-			kernel/i8259.o kernel/global.o kernel/protect.o \
-			kernel/clock.o kernel/proc.o kernel/syscall.o \
-			lib/klib.o lib/kliba.o lib/string.o
+		kernel/i8259.o kernel/global.o kernel/protect.o \
+		kernel/clock.o kernel/proc.o kernel/syscall.o \
+		lib/klib.o lib/kliba.o lib/string.o
 DASMOUTPUT	= kernel.bin.asm
 
+IMAGE		= images/boot.img
+TEMPIMAGE	= ../boot.img
+
 # All phony targets
-.PHONY: everything final image clean realclean disasm all buildimg
+.PHONY: everything final image clean realclean disasm all \
+	buildimg update
 
 # Default starting position
 everything: $(ORANGESBOOT) $(ORANGESKERNEL)
@@ -48,16 +52,22 @@ realclean:
 disasm:
 	$(DASM) $(DASMFLAGS) $(ORANGESKERNEL) > $(DASOUTPUT)
 
-# We assume that 'boot.img' exists in current folder
 buildimg:
-	#dd if=/dev/zero of=images/boot.img bs=512 count=68
-	#mkfs.msdos images/boot.img
-	dd if=boot/boot.bin of=images/boot.img bs=512 count=1 conv=notrunc
-	sudo mount -o loop images/boot.img /mnt/floppy
-	#sudo rm -fv /mnt/floppy/*.*
-	sudo cp -fv boot/loader.bin /mnt/floppy
-	sudo cp -fv kernel.bin /mnt/floppy
-	sudo umount /mnt/floppy
+	dd if=/dev/zero of=$(TEMPIMAGE) bs=512 count=2880
+	mkfs.msdos $(TEMPIMAGE)
+	dd if=boot/boot.bin of=$(TEMPIMAGE) bs=512 count=1 conv=notrunc
+	sudo mount -o loop $(TEMPIMAGE) /mnt/floppy/
+	sudo cp -f boot/loader.bin /mnt/floppy/
+	sudo cp -f kernel.bin /mnt/floppy/
+	sudo umount -l /mnt/floppy/
+	sudo cp $(TEMPIMAGE) $(IMAGE)
+
+update: final
+	sudo mount -o loop $(TEMPIMAGE) /mnt/floppy/
+	sudo cp -f boot/loader.bin /mnt/floppy/
+	sudo cp -f kernel.bin /mnt/floppy/
+	sudo umount -l /mnt/floppy/
+	sudo cp $(TEMPIMAGE) $(IMAGE)
 
 boot/boot.bin: boot/boot.asm boot/include/load.inc boot/include/fat12hdr.inc
 	$(ASM) $(ASMBFLAGS) -o $@ $<

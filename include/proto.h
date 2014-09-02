@@ -40,3 +40,4 @@ PUBLIC int  get_ticks();
 
 /* proc.c */
 PUBLIC int  sys_get_ticks();
+PUBLIC void schedule();

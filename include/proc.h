@@ -34,8 +34,8 @@ typedef struct s_proc {
     u16         ldt_sel;
     DESCRIPTOR  ldts[LDT_SIZE];
 
-    //int         ticks;
-    //int         priority;
+    int         ticks;
+    int         priority;
     
     u32         pid;
     char        p_name[16];
