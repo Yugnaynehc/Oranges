@@ -10,10 +10,10 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
+#include "proc.h"
 #include "console.h"
 #include "tty.h"
 #include "proto.h"
-#include "proc.h"
 //#include "global.h"
 
 PUBLIC  int         disp_pos;
@@ -40,6 +40,8 @@ PUBLIC  CONSOLE     console_table[NR_CONSOLES];
 PUBLIC  u8          task_stack[STACK_SIZE_TOTAL];
 
 PUBLIC  irq_handler irq_table[NR_IRQ];
-PUBLIC  system_call sys_call_table[NR_SYS_CALL] = { sys_get_ticks };
+PUBLIC  system_call sys_call_table[NR_SYS_CALL] = {
+    sys_get_ticks,
+    sys_write       };
 PUBLIC  int         ticks;
 PUBLIC  int         nr_current_console;

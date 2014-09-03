@@ -25,7 +25,8 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o \
 			kernel/i8259.o kernel/global.o kernel/protect.o \
 			kernel/clock.o kernel/proc.o kernel/syscall.o \
 			kernel/keyboard.o kernel/tty.o kernel/console.o \
-			lib/klib.o lib/kliba.o lib/string.o
+			lib/klib.o lib/kliba.o lib/string.o lib/printf.o \
+			lib/vsprintf.o
 DASMOUTPUT	= kernel.bin.asm
 
 IMAGE		= images/boot.img
@@ -136,6 +137,16 @@ kernel/tty.o: kernel/tty.c include/type.h include/const.h include/protect.h \
 lib/klib.o: lib/klib.c include/type.h include/const.h include/protect.h \
 		include/console.h include/tty.h include/proto.h include/string.h \
 		include/proc.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/printf.o: lib/printf.c include/type.h include/const.h include/protect.h \
+		include/console.h include/tty.h include/proto.h include/string.h \
+		include/proc.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/vsprintf.o: lib/vsprintf.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h include/proto.h \
+		include/string.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/kliba.o: lib/kliba.asm include/sconst.inc

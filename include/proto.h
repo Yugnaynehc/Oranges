@@ -38,6 +38,7 @@ PUBLIC void put_irq_handler(int irq, irq_handler handler);
 
 /* syscall.asm */
 PUBLIC int  get_ticks();
+PUBLIC void write(char *buf, int len);
 
 /* proc.c */
 PUBLIC int  sys_get_ticks();
@@ -51,9 +52,18 @@ PUBLIC void keyboard_read();
 /* tty.c */
 PUBLIC void task_tty();
 PUBLIC void in_process(TTY *p_tty, u32 key);
+PUBLIC void tty_write(TTY *p_tty, char *buf, int len);
+PUBLIC int  sys_write(char *buf, int len, PROCESS *p_proc);
 
 /* console.c */
 PUBLIC BOOL is_current_console(CONSOLE *p_con);
 PUBLIC void out_char(CONSOLE *p_conm, char ch);
 PUBLIC void select_console(int nr_console);
 PUBLIC void scroll_screen(CONSOLE *p_con, int direction);
+
+/* printf.c */
+PUBLIC int printf(const char *fmt, ...);
+
+/* vsprintf.c */
+PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
+

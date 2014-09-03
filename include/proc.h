@@ -39,6 +39,8 @@ typedef struct s_proc {
     
     u32         pid;
     char        p_name[16];
+
+    int nr_tty;
 } PROCESS;
 
 typedef struct s_task {
