@@ -55,3 +55,5 @@ PUBLIC void in_process(TTY *p_tty, u32 key);
 /* console.c */
 PUBLIC BOOL is_current_console(CONSOLE *p_con);
 PUBLIC void out_char(CONSOLE *p_conm, char ch);
+PUBLIC void select_console(int nr_console);
+PUBLIC void scroll_screen(CONSOLE *p_con, int direction);
