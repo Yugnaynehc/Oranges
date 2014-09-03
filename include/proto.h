@@ -29,6 +29,7 @@ PUBLIC void TestC();
 
 /* clock.c */
 PUBLIC void clock_handler();
+PUBLIC void init_clock();
 PUBLIC void milli_delay(int milli_sec);
 
 /* i8259.c */
@@ -41,3 +42,16 @@ PUBLIC int  get_ticks();
 /* proc.c */
 PUBLIC int  sys_get_ticks();
 PUBLIC void schedule();
+
+/* keyboard.c */
+PUBLIC void keyboard_handler();
+PUBLIC void init_keyboard();
+PUBLIC void keyboard_read();
+
+/* tty.c */
+PUBLIC void task_tty();
+PUBLIC void in_process(TTY *p_tty, u32 key);
+
+/* console.c */
+PUBLIC BOOL is_current_console(CONSOLE *p_con);
+PUBLIC void out_char(CONSOLE *p_conm, char ch);

@@ -65,7 +65,7 @@ memset:
     push ecx
 
     mov  edi, [ebp + 8]         ; edi = p_dst
-    mov  esi, [ebp + 12]        ; dsi = p_src
+    mov  edx, [ebp + 12]        ; edx = p_src
     mov  ecx, [ebp + 16]        ; ecx = size
 .1:
     cmp  ecx, 0

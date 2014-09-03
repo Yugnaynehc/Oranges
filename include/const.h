@@ -1,10 +1,6 @@
 
 
 
-
-
-
-
 #ifndef _ORANGES_CONST_H_
 #define _ORANGES_CONST_H_
 
@@ -20,6 +16,21 @@
 #define TRUE    1
 #define FALSE   0
 
+/* Color */
+/*
+ * e.g. MAKE_COLOR(BLUE, RED)
+ *      MAKE_COLOR(BLACK, RED) | BRIGHT
+ *      MAKE_COLOR(BLACK, RED) | BRIGHT | FLASH
+ */
+#define BLACK   0x0     /* 0000 */
+#define WHITE   0x7     /* 0111 */
+#define RED     0x4     /* 0100 */
+#define GREEN   0x2     /* 0010 */
+#define BLUE    0x1     /* 0001 */
+#define FLASH   0x80    /* 1000 0000 */
+#define MAKE_COLOR(x,y) (x | y) /* MAKE_COLOR(Background,Foreground) */
+#define BRIGHT  0x08    /* 0000 1000 */
+
 /* the number of selectors of GDT and IDT */
 #define GDT_SIZE    128
 #define IDT_SIZE    256
@@ -32,6 +43,9 @@
 #define RPL_KRNL          SA_RPL0
 #define RPL_TASK          SA_RPL1
 #define RPL_USER          SA_RPL3
+
+/* TTY */
+#define NR_CONSOLES      3
 
 /* 8259A interrupt controller ports */
 #define INT_M_CTL        0x20       /* I/O port for interrupt controller                <Master> */
@@ -48,10 +62,29 @@
 #define TIMER_FREQ       1193182L /* clock frequency for timer in PC and AT */
 #define HZ               100      /* clock freq(sofrware settable on IBM-PC) */
 
+/* AT keyboard */
+/* 8042 ports */
+#define KB_DATA		0x60	/* I/O port for keyboard data
+					Read : Read Output Buffer
+					Write: Write Input Buffer(8042 Data&8048                                   Command) */
+#define KB_CMD		0x64	/* I/O port for keyboard command
+					Read : Read Status Register
+					Write: Write Input Buffer(8042 Command)                                 */
+
+/* VGA */
+#define	CRTC_ADDR_REG	0x3D4	/* CRT Controller Registers - Addr Register */
+#define	CRTC_DATA_REG	0x3D5	/* CRT Controller Registers - Data Register */
+#define	START_ADDR_H	0xC	/* reg index of video mem start addr (MSB) */
+#define	START_ADDR_L	0xD	/* reg index of video mem start addr (LSB) */
+#define	CURSOR_H	0xE	/* reg index of cursor position (MSB) */
+#define	CURSOR_L	0xF	/* reg index of cursor position (LSB) */
+#define	V_MEM_BASE	0xB8000	/* base of color video memory */
+#define	V_MEM_SIZE	0x8000	/* 32K: B8000H -> BFFFFH */
+
 /* Hardware interrupts */
 #define NR_IRQ           16     /* number of IRQs */
 #define CLOCK_IRQ        0
-#define KEYBOADR_IRQ     1
+#define KEYBOARD_IRQ     1
 #define CASCADE_IRQ      2
 #define ETHER_IRQ        3
 #define SECONDARE_IRQ    3

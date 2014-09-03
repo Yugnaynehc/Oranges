@@ -1,6 +1,8 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
+#include "console.h"
+#include "tty.h"
 #include "proto.h"
 #include "proc.h"
 #include "global.h"
@@ -20,6 +22,17 @@ PUBLIC void clock_handler(int irq)
     /*     return; */
     
     schedule();
+}
+
+PUBLIC void init_clock()
+{
+    /* init 8253 */
+    out_byte(TIMER_MODE, RATE_GERERATOR);
+    out_byte(TIMER0, (u8)(TIMER_FREQ/HZ));
+    out_byte(TIMER0, (u8)((TIMER_FREQ/HZ) >> 8));
+    
+    put_irq_handler(CLOCK_IRQ, clock_handler);
+    enable_irq(CLOCK_IRQ);
 }
 
 PUBLIC void milli_delay(int milli_sec)

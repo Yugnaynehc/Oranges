@@ -23,9 +23,12 @@ EXTERN  TSS        tss;
 EXTERN  PROCESS    *p_proc_ready;
 
 EXTERN  PROCESS    proc_table[NR_TASKS];
-EXTERN  char       task_stack[STACK_SIZE_TOTAL];
+EXTERN  TTY        tty_table[NR_CONSOLES];
+EXTERN  CONSOLE    console_table[NR_CONSOLES];
+EXTERN  u8         task_stack[STACK_SIZE_TOTAL];
 EXTERN  TASK       task_table[NR_TASKS];
 
 EXTERN  irq_handler irq_table[NR_IRQ];
 EXTERN  system_call sys_call_table[NR_SYS_CALL];
 EXTERN  int         ticks;
+EXTERN  int         nr_current_console;

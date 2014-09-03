@@ -22,9 +22,10 @@ LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386
 ORANGESBOOT	= boot/boot.bin boot/loader.bin
 ORANGESKERNEL	= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o \
-		kernel/i8259.o kernel/global.o kernel/protect.o \
-		kernel/clock.o kernel/proc.o kernel/syscall.o \
-		lib/klib.o lib/kliba.o lib/string.o
+			kernel/i8259.o kernel/global.o kernel/protect.o \
+			kernel/clock.o kernel/proc.o kernel/syscall.o \
+			kernel/keyboard.o kernel/tty.o kernel/console.o \
+			lib/klib.o lib/kliba.o lib/string.o
 DASMOUTPUT	= kernel.bin.asm
 
 IMAGE		= images/boot.img
@@ -82,36 +83,59 @@ kernel/kernel.o: kernel/kernel.asm include/sconst.inc
 kernel/syscall.o: kernel/syscall.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-kernel/start.o: kernel/start.c include/type.h include/const.h include/proto.h \
-		include/protect.h include/string.h include/proc.h include/global.h
+kernel/clock.o: kernel/clock.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h \
+		include/proto.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/main.o: kernel/main.c include/type.h include/const.h include/protect.h \
-		include/string.h include/proc.h include/proto.h include/global.h
-	$(CC) $(CFLAGS) -o $@ $<
-
-kernel/i8259.o: kernel/i8259.c include/type.h include/const.h \
-		include/protect.h include/proto.h
+kernel/console.o: kernel/console.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h include/proto.h \
+		include/string.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/global.o: kernel/global.c include/type.h include/const.h \
-		include/protect.h include/proc.h include/global.h include/proto.h
+		include/protect.h include/console.h include/tty.h include/proto.h \
+		include/proc.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/i8259.o: kernel/i8259.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h \
+		include/proto.h include/proc.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/keyboard.o: kernel/keyboard.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h include/proto.h \
+		include/proc.h include/global.h include/keyboard.h include/keymap.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/main.o: kernel/main.c include/type.h include/const.h include/protect.h \
+		include/console.h include/tty.h include/proto.h include/string.h \
+		include/proc.h include/global.h
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/proc.o: kernel/proc.c include/type.h include/const.h include/protect.h \
+		include/console.h include/tty.h include/proto.h include/string.h \
+		include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/protect.o: kernel/protect.c include/type.h include/const.h \
-		include/protect.h include/proc.h include/proto.h include/global.h
+		include/protect.h include/console.h include/tty.h include/proto.h \
+		include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/clock.o: kernel/clock.c include/type.h include/const.h \
-		include/protect.h include/proto.h include/proc.h include/global.h
+kernel/start.o: kernel/start.c include/type.h include/const.h \
+		include/protect.h include/console.h include/tty.h \
+		include/proto.h include/string.h include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/proc.o: kernel/proc.c include/type.h include/const.h include/proto.h \
-		include/protect.h include/string.h include/global.h include/proc.h
+kernel/tty.o: kernel/tty.c include/type.h include/const.h include/protect.h \
+		include/console.h include/tty.h include/proto.h include/string.h \
+		include/proc.h include/global.h include/keyboard.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o: lib/klib.c include/type.h include/const.h include/protect.h \
-		include/string.h include/proc.h include/proto.h include/global.h
+		include/console.h include/tty.h include/proto.h include/string.h \
+		include/proc.h include/global.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/kliba.o: lib/kliba.asm include/sconst.inc

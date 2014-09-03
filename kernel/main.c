@@ -8,13 +8,15 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
+#include "console.h"
+#include "tty.h"
 #include "proto.h"
 #include "string.h"
 #include "proc.h"
 #include "global.h"
 
 
-
+const int delay_time = 2000;
 
 
 PUBLIC int kernel_main()
@@ -55,27 +57,24 @@ PUBLIC int kernel_main()
         p_proc->regs.esp    = (u32)p_task_stack;
         p_proc->regs.eflags = 0x1202; /* IF=1, IOPL=1, bit 2 is always 1 */
 
+        p_proc->priority = p_proc->ticks = 0; /* about process schedule */
+
         p_task_stack -= p_task->stacksize;
         p_proc++;
         p_task++;
         selector_ldt += 1 << 3;
     }
 
-    proc_table[0].priority = proc_table[0].ticks = 15;
-    proc_table[1].priority = proc_table[1].ticks = 5;
-    proc_table[2].priority = proc_table[2].ticks = 3;
+    proc_table[0].priority = proc_table[0].ticks = 150;
+    //proc_table[1].priority = proc_table[1].ticks = 50;
+    //proc_table[2].priority = proc_table[2].ticks = 30;
     
     k_reenter       = 0;
     ticks           = 0;
     p_proc_ready    = proc_table;
 
-    put_irq_handler(CLOCK_IRQ, clock_handler);
-    enable_irq(CLOCK_IRQ);
 
-    /* init 8253 */
-    out_byte(TIMER_MODE, RATE_GERERATOR);
-    out_byte(TIMER0, (u8)(TIMER_FREQ/HZ));
-    out_byte(TIMER0, (u8)((TIMER_FREQ/HZ) >> 8));
+    init_clock();
     
     restart();
     
@@ -87,9 +86,9 @@ void TestA()
     //int i = 0;
     while (1) {
         disp_str("A");
-        disp_int(get_ticks());
+        //disp_int(get_ticks());
         disp_str(".");
-        milli_delay(200);
+        milli_delay(delay_time);
     }
 }
 
@@ -98,9 +97,9 @@ void TestB()
     int i = 0x1000;
     while (1) {
         disp_str("B");
-        disp_int(get_ticks());
+        //disp_int(get_ticks());
         disp_str(".");
-        milli_delay(200);
+        milli_delay(delay_time);
     }
 }
 
@@ -109,8 +108,8 @@ void TestC()
     int i = 0x2000;
     while (1) {
         disp_str("C");
-        disp_int(get_ticks());
+        //disp_int(get_ticks());
         disp_str(".");
-        milli_delay(200);
+        milli_delay(delay_time);
     }
 }
