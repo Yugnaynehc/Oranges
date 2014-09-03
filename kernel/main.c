@@ -26,9 +26,25 @@ PUBLIC int kernel_main()
     PROCESS     *p_proc         = proc_table;
     u8          *p_task_stack   = task_stack + STACK_SIZE_TOTAL;
     u16         selector_ldt    = SELECTOR_LDT_FIRST;
+    u8          privilege;
+    u8          rpl;
+    int         eflags;
 
     int i;
-    for (i=0; i<NR_TASKS; ++i) {
+    for (i=0; i<NR_TASKS+NR_PROCS; ++i) {
+        if (i < NR_TASKS) {
+            p_task          = task_table + i;
+            privilege       = PRIVILEGE_TASK;
+            rpl             = RPL_TASK;
+            eflags          = 0x1202; /* IF=1, IOPL=1, bit 2 is always 1 */
+        } else {
+            p_task          = user_proc_table + (i - NR_TASKS);
+            privilege       = PRIVILEGE_USER;
+            rpl             = RPL_USER;
+            eflags          = 0x202; /* IF=1, bit 2 is always 1 */
+        }
+                
+        
         strcpy(p_proc->p_name, p_task->name);
         p_proc->pid         = i;
         
@@ -36,26 +52,26 @@ PUBLIC int kernel_main()
         
         memcpy(&p_proc->ldts[0], &gdt[SELECTOR_KERNEL_CS>>3],
                sizeof(DESCRIPTOR));
-        p_proc->ldts[0].attr1 = DA_C | PRIVILEGE_TASK << 5; /* change the DPL */
+        p_proc->ldts[0].attr1 = DA_C | privilege << 5; /* change the DPL */
         memcpy(&p_proc->ldts[1], &gdt[SELECTOR_KERNEL_DS>>3],
                sizeof(DESCRIPTOR));
         p_proc->ldts[1].attr1 = DA_DRW | PRIVILEGE_TASK << 5; /* change the DPL */
     
         p_proc->regs.cs     = (0 & SA_RPL_MASK & SA_TI_MASK)
-                                | SA_TIL | RPL_TASK; /* make cs point to the first item in ldt */
+                                | SA_TIL | rpl; /* make cs point to the first item in ldt */
         p_proc->regs.ds     = (8 & SA_RPL_MASK & SA_TI_MASK)
-                                | SA_TIL | RPL_TASK; /* make ds,es,fs and ss point to the second item in ldt */
+                                | SA_TIL | rpl; /* make ds,es,fs and ss point to the second item in ldt */
         p_proc->regs.es     = (8 & SA_RPL_MASK & SA_TI_MASK)
-                                | SA_TIL | RPL_TASK;
+                                | SA_TIL | rpl;
         p_proc->regs.fs     = (8 & SA_RPL_MASK & SA_TI_MASK)
-                                | SA_TIL | RPL_TASK;
+                                | SA_TIL | rpl;
         p_proc->regs.ss     = (8 & SA_RPL_MASK & SA_TI_MASK)
-                                | SA_TIL | RPL_TASK;
+                                | SA_TIL | rpl;
         p_proc->regs.gs     = (SELECTOR_KERNEL_GS & SA_TI_MASK)
-                                | RPL_TASK; /* make gs point to the gs selector in gdt and change its RPL */
+                                | rpl; /* make gs point to the gs selector in gdt and change its RPL */
         p_proc->regs.eip    = (u32)p_task->initial_eip;
         p_proc->regs.esp    = (u32)p_task_stack;
-        p_proc->regs.eflags = 0x1202; /* IF=1, IOPL=1, bit 2 is always 1 */
+        p_proc->regs.eflags = eflags; 
 
         p_proc->priority = p_proc->ticks = 0; /* about process schedule */
 
