@@ -94,10 +94,7 @@ PUBLIC void select_console(int nr_console)
     }
 
     nr_current_console = nr_console;
-    CONSOLE current_console = console_table[nr_console];
-    
-    set_cursor(current_console.cursor);
-    set_video_start_addr(current_console.current_start_addr);
+    flush(&console_table[nr_console]);
 }
 
 PUBLIC void scroll_screen(CONSOLE *p_con, int direction)
@@ -121,8 +118,7 @@ PUBLIC void scroll_screen(CONSOLE *p_con, int direction)
         
     }
 
-    set_video_start_addr(p_con->current_start_addr);
-    set_cursor(p_con->cursor);
+    flush(p_con);
 }
 
 PRIVATE void set_cursor(unsigned int position)
